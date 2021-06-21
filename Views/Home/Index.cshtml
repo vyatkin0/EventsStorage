@@ -1,0 +1,187 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using EventsStorage.Models;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model EventListViewModel
+
+@{ ViewData["Title"] = "Загрузка данных по изменениям компонентов МУСС"; }
+
+@{
+    int selectedCountIndex = Model.count switch
+    {
+        10 => 0,
+        25 => 1,
+        100 => 2,
+        _ => -1
+    };
+
+}
+
+<!--https://material.io/components-->
+
+<h6 class="mdc-typography mdc-typography--headline6">Events</h6>
+
+<partial name="Filter.cshtml" />
+<partial name="UploadFile.cshtml" model=null />
+<partial name="Alert.cshtml" />
+
+<!-- Таблица изменений МУСС -->
+<div class="mdc-data-table main-data-table">
+    <div class="mdc-data-table__table-container">
+        <table class="mdc-data-table__table" aria-label="Events" width="100%">
+            <thead>
+                <tr class="mdc-data-table__header-row">
+                    <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col" width="150px">Id</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col" width="120px">Subject Id</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Subject Name</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Created at</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Files</th>
+
+                </tr>
+            </thead>
+            <tbody class="mdc-data-table__content">
+                @foreach (var e in Model.events)
+                {
+                <tr class="mdc-data-table__row">
+                    <th class="mdc-data-table__cell mdc-data-table__header-cell--numeric" scope="row">@e.Id</th>
+                    <th class="mdc-data-table__cell">@e.SubjectId</th>
+                    <th class="mdc-data-table__cell">@e.Subject.Name</th>
+                    <td class="mdc-data-table__cell">@e.CreatedAt</td>
+                    <td class="mdc-data-table__cell">
+                        @foreach (var f in e.Files)
+                        {
+                        <div id="relation@(f.Id)" class="event-relation">
+                            <span class="material-icons clickable" onclick="onDeleteRelation(@f.Id)" title="Delete file">
+                                delete
+                            </span>
+                            <a href="@Url.Action("Download", "ComponentEvent", new {id = f.Id } )" title="Download file">@f.Name</a>
+                        </div>
+                        }
+                        <span class="material-icons clickable" onclick="onAddEventFile(@e.Id)" title="Add file">
+                            add_circle
+                        </span>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <form method="post" asp-antiforgery="true" id="mainForm">
+        <input type="hidden" asp-for="offset" value="@Model.offset" />
+        <input type="hidden" asp-for="count" value="@Model.count" />
+        <input type="hidden" asp-for="subjects" value="@string.Join(",", Model.subjects.Select(s => s.Id).ToArray())" />
+
+        <div class="mdc-data-table__pagination">
+            <div class="mdc-data-table__pagination-trailing">
+                <div class="mdc-data-table__pagination-rows-per-page">
+                    <div class="mdc-data-table__pagination-rows-per-page-label">
+                        Строк на странице
+                    </div>
+
+                    <div id="selectCount" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select">
+                        <div class="mdc-select__anchor" role="button" aria-haspopup="listbox"
+                             aria-expanded="false"
+                             aria-labelledby="files-pagination-select" tabindex="0">
+                            <span class="mdc-select__selected-text-container">
+                                <span id="files-pagination-select" class="mdc-select__selected-text"></span>
+                            </span>
+                            <span class="mdc-select__dropdown-icon">
+                                <svg class="mdc-select__dropdown-icon-graphic"
+                                     viewBox="7 10 10 5">
+                                    <polygon class="mdc-select__dropdown-icon-inactive"
+                                             stroke="none"
+                                             fill-rule="evenodd"
+                                             points="7 10 12 15 17 10">
+                                    </polygon>
+                                    <polygon class="mdc-select__dropdown-icon-active"
+                                             stroke="none"
+                                             fill-rule="evenodd"
+                                             points="7 15 12 10 17 15">
+                                    </polygon>
+                                </svg>
+                            </span>
+                            <span class="mdc-notched-outline mdc-notched-outline--notched">
+                                <span class="mdc-notched-outline__leading"></span>
+                                <span class="mdc-notched-outline__trailing"></span>
+                            </span>
+                        </div>
+
+                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
+                            <ul class="mdc-list">
+                                <li class="mdc-list-item" role="option" data-value="10">
+                                    <span class="mdc-list-item__text">10</span>
+                                </li>
+                                <li class="mdc-list-item" role="option" data-value="25">
+                                    <span class="mdc-list-item__text">25</span>
+                                </li>
+                                <li class="mdc-list-item" role="option" data-value="100">
+                                    <span class="mdc-list-item__text">100</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mdc-data-table__pagination-navigation">
+                    <div class="mdc-data-table__pagination-total">
+                        Events @(Model.offset+1)‑@(Model.offset + Model.events.Length) of @Model.total
+                    </div>
+                    <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
+                            data-first-page="true" onclick="onFirstPage(this.form)" @(Model.offset < Model.count ? "disabled" : "")>
+                        <div class="mdc-button__icon">first_page</div>
+                    </button>
+                    <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
+                            data-prev-page="true" onclick="onPrevPage(this.form)" @(Model.offset > 0 ? "" : "disabled" )>
+                        <div class="mdc-button__icon">chevron_left</div>
+                    </button>
+                    <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
+                            data-next-page="true" onclick="onNextPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled" )>
+                        <div class="mdc-button__icon">chevron_right</div>
+                    </button>
+                    <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
+                            data-last-page="true" onclick="onLastPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled")>
+                        <div class="mdc-button__icon">last_page</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Таблица изменений МУСС -->
+
+<script>
+    var selectedCountIndex = @selectedCountIndex;
+    var selectedCountName = 'componentEventPageCount';
+    var filterComponents = 'filterComponents';
+    var mainListTotal = @Model.total;
+
+    const selectedCount = localStorage.getItem(selectedCountName);
+    const selectedComponents = localStorage.getItem(filterComponents);
+
+    const modelComponents = [];
+    @foreach (var s in Model.subjects)
+    {
+    @: modelComponents.push('@s.Id');
+    }
+
+    const components = selectedComponents ?
+        selectedComponents.split(',').map(s => s.trim()).filter(s => s.length === 36 && !modelComponents.includes(s))
+        : [];
+
+    if ((selectedCount && selectedCount != @Model.count) || components.length > 0) {
+        const form = document.forms['mainForm'];
+
+        if (selectedComponents) {
+            form.components.value = selectedComponents;
+        }
+
+        if (selectedCount) {
+            form.count.value = selectedCount;
+        }
+
+        form.offset.value = 0;
+        form.submit();
+    }
+</script>

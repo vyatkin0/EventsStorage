@@ -1,0 +1,47 @@
+﻿@using EventsStorage.Models;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model EventListViewModel
+
+<div>
+    <div id="searchBox">
+        <div class="mdc-chip-set mdc-chip-set--input" role="grid" id="filterChipSet">
+            @foreach (var s in Model.subjects)
+            {
+                <div class="mdc-chip mdc-chip--deletable" role="row" id="@s.Id">
+                    <div class="mdc-chip__ripple"></div>
+                    <span role="gridcell">
+                        <span role="button" tabindex="0" class="mdc-chip__primary-action">
+                            <span class="mdc-chip__text">@s.Name @s.Id</span>
+                        </span>
+                    </span>
+                    <span role="gridcell">
+                        <!--Not mdc-chip__trailing-action!!!-->
+                        <i class="material-icons mdc-chip__icon mdc-chip__icon--trailing mdc-chip__trailing-action mdc-chip-trailing-action" tabindex="-1" role="button">cancel</i>
+                    </span>
+                </div>
+            }
+        </div>
+
+        <label class="mdc-text-field mdc-text-field--outlined" id="search-input-id">
+            <span class="mdc-notched-outline">
+                <span class="mdc-notched-outline__leading"></span>
+                <span class="mdc-notched-outline__notch">
+                    <span class="mdc-floating-label" id="search-label-id">Id or Name of a subject</span>
+                </span>
+                <span class="mdc-notched-outline__trailing"></span>
+            </span>
+            <input type="text" class="mdc-text-field__input" aria-labelledby="search-label-id"
+                   aria-controls="search-helper-id"
+                   aria-describedby="search-helper-id"
+                   oninput="onSearchComponent(event)"
+                   onkeydown="onSearchInputKeyDown(event)">
+        </label>
+        <!--Component menu-surface is not attached here, only css styles are applied-->
+        <div class="mdc-menu-surface mdc-menu-surface--open" id="searchResultListContainer">
+            <ul class="mdc-list mdc-list--two-line" id="searchResultList"></ul>
+        </div>
+        <div class="mdc-text-field-helper-line">
+            <div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="search-helper-id" aria-hidden="false">Start typing here Id or Name of a subject</div>
+        </div>
+    </div>
+</div>
