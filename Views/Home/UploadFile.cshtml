@@ -11,7 +11,7 @@
     <input type="hidden" asp-for="fileType" />
     <input type="hidden" asp-for="eventId" />
     <!-- Диалог параметров загрузки файла-->
-    <div class="mdc-dialog" id="file-upload-dialog">
+    <div class="mdc-dialog" id="file-upload-dialog" data-mdc-auto-init="MDCDialog">
         <div class="mdc-dialog__container">
             <div class="mdc-dialog__surface"
                  role="alertdialog"
@@ -38,11 +38,11 @@
                     </div>
 
                     <div class="mdc-dialog__actions">
-                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-dialog-initial-focus data-mdc-dialog-button-default>
+                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-dialog-initial-focus data-mdc-dialog-button-default data-mdc-auto-init="MDCRipple">
                             <div class="mdc-button__ripple"></div>
                             <span class="mdc-button__label">Закрыть</span>
                         </button>
-                        <button type="button" id="uploadButton" class="mdc-button mdc-dialog__button" disabled onclick="onUpload(this.form)">
+                        <button type="button" id="uploadButton" class="mdc-button mdc-dialog__button" disabled onclick="onUpload(this.form)" data-mdc-auto-init="MDCRipple">
                             <div class="mdc-button__ripple"></div>
                             <span class="mdc-button__label">Загрузить</span>
                         </button>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -92,7 +92,6 @@ namespace EventsStorage.Controllers
             {
                 EventId = model.eventId,
                 Name = model.formFile.FileName,
-                Type = model.fileType,
                 CreatedAt = DateTime.UtcNow
             };
 

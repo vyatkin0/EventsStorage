@@ -4,7 +4,7 @@
 
 <div>
     <div id="searchBox">
-        <div class="mdc-chip-set mdc-chip-set--input" role="grid" id="filterChipSet">
+        <div class="mdc-chip-set mdc-chip-set--input" role="grid" id="filterChipSet" data-mdc-auto-init="MDCChipSet">
             @foreach (var s in Model.subjects)
             {
                 <div class="mdc-chip mdc-chip--deletable" role="row" id="@s.Id">
@@ -22,7 +22,7 @@
             }
         </div>
 
-        <label class="mdc-text-field mdc-text-field--outlined" id="search-input-id">
+        <label class="mdc-text-field mdc-text-field--outlined" id="search-input-id" data-mdc-auto-init="MDCTextField">
             <span class="mdc-notched-outline">
                 <span class="mdc-notched-outline__leading"></span>
                 <span class="mdc-notched-outline__notch">
@@ -38,7 +38,7 @@
         </label>
         <!--Component menu-surface is not attached here, only css styles are applied-->
         <div class="mdc-menu-surface mdc-menu-surface--open" id="searchResultListContainer">
-            <ul class="mdc-list mdc-list--two-line" id="searchResultList"></ul>
+            <ul class="mdc-list mdc-list--two-line" id="searchResultList" data-mdc-auto-init="MDCList"></ul>
         </div>
         <div class="mdc-text-field-helper-line">
             <div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="search-helper-id" aria-hidden="false">Start typing here Id or Name of a subject</div>

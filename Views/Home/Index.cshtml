@@ -27,7 +27,7 @@
 <partial name="Alert.cshtml" />
 
 <!-- Таблица изменений МУСС -->
-<div class="mdc-data-table main-data-table">
+<div class="mdc-data-table main-data-table" data-mdc-auto-init="MDCDataTable">
     <div class="mdc-data-table__table-container">
         <table class="mdc-data-table__table" aria-label="Events" width="100%">
             <thead>
@@ -80,7 +80,8 @@
                         Строк на странице
                     </div>
 
-                    <div id="selectCount" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select">
+                    <div id="selectCount" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select"
+                    data-mdc-auto-init="MDCSelect">
                         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox"
                              aria-expanded="false"
                              aria-labelledby="files-pagination-select" tabindex="0">
@@ -129,19 +130,23 @@
                         Events @(Model.offset+1)‑@(Model.offset + Model.events.Length) of @Model.total
                     </div>
                     <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
-                            data-first-page="true" onclick="onFirstPage(this.form)" @(Model.offset < Model.count ? "disabled" : "")>
+                            data-first-page="true" onclick="onFirstPage(this.form)" @(Model.offset < Model.count ? "disabled" : "")
+                            data-mdc-auto-init="MDCRipple">
                         <div class="mdc-button__icon">first_page</div>
                     </button>
                     <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
-                            data-prev-page="true" onclick="onPrevPage(this.form)" @(Model.offset > 0 ? "" : "disabled" )>
+                            data-prev-page="true" onclick="onPrevPage(this.form)" @(Model.offset > 0 ? "" : "disabled" )
+                            data-mdc-auto-init="MDCRipple">
                         <div class="mdc-button__icon">chevron_left</div>
                     </button>
                     <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
-                            data-next-page="true" onclick="onNextPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled" )>
+                            data-next-page="true" onclick="onNextPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled" )
+                            data-mdc-auto-init="MDCRipple">
                         <div class="mdc-button__icon">chevron_right</div>
                     </button>
                     <button type="submit" class="mdc-icon-button material-icons mdc-data-table__pagination-button"
-                            data-last-page="true" onclick="onLastPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled")>
+                            data-last-page="true" onclick="onLastPage(this.form)" @(Model.offset + Model.count < Model.total ? "" : "disabled")
+                            data-mdc-auto-init="MDCRipple">
                         <div class="mdc-button__icon">last_page</div>
                     </button>
                 </div>

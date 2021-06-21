@@ -1,102 +1,30 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
 /** Initialize MDC Web components. */
-const buttons = document.querySelectorAll('.mdc-button');
-for (const button of buttons) {
-    if (button.id !== 'fileUploadWrapper') {
-        mdc.ripple.MDCRipple.attachTo(button);
+mdc.autoInit();
+
+document.getElementById('search-input-id').MDCTextField.focus();
+
+const filterChipSet = document.getElementById('filterChipSet').MDCChipSet;
+filterChipSet.listen('MDCChip:removal', function (event) {
+    onDeleteFilterIndex(event.detail.chipId);
+});
+
+document.getElementById('del-file-dialog').MDCDialog.listen('MDCDialog:closed', (e) => {
+
+    if (e.detail.action === 'delete') {
+        onConfirmedDeleteRelation();
     }
-}
+});
 
-const iconButtons = document.querySelectorAll('.mdc-icon-button');
-for (const button of iconButtons) {
-    mdc.ripple.MDCRipple.attachTo(button);
-}
-
-const formField = document.querySelector('.mdc-form-field');
-if (formField) {
-    const mdcFormField = mdc.formField.MDCFormField.attachTo(formField);
-
-    const switches = document.querySelectorAll('.mdc-switch');
-    if (switches) {
-        for (const s of switches) {
-
-            const mdcCtrl = mdc.switchControl.MDCSwitch.attachTo(s);
-            if (s.id === 'replace') {
-                mdcFormField.input = mdcCtrl;
-            }
-        }
+const searchResultListEl = document.getElementById('searchResultList');
+var searchResultList = searchResultListEl.MDCList
+searchResultList.listen('MDCList:action', (e) => {
+    if (e.detail.index >= 0 && e.detail.index < searchResultList.listElements.length) {
+        onAddFilterIndex(searchResultList.listElements[e.detail.index]);
     }
-}
+});
 
-const textFields = document.querySelectorAll('.mdc-text-field');
-if (textFields) {
-    for (const textField of textFields) {
-        const mdcTextField = mdc.textField.MDCTextField.attachTo(textField);
-        if (textField.id === 'search-input-id') {
-            mdcTextField.focus();
-        }
-    }
-}
+const countSelect = document.getElementById('selectCount').MDCSelect;
 
-var searchResultList = null;
-const lists = document.querySelectorAll('.mdc-list');
-if (lists) {
-    for (const list of lists) {
-        const l = mdc.list.MDCList.attachTo(list);
-
-        if (list.id === 'searchResultList') {
-            searchResultList = l;
-
-            searchResultList.listen('MDCList:action', (e) => {
-                if (e.detail.index >= 0 && e.detail.index < searchResultList.listElements.length) {
-                    onAddFilterIndex(searchResultList.listElements[e.detail.index]);
-                }
-            });
-        }
-    }
-}
-
-const drawers = document.querySelectorAll('.mdc-drawer');
-for (const drawer of drawers) {
-    mdc.drawer.MDCDrawer.attachTo(drawer);
-}
-
-const dataTables = document.querySelectorAll('.mdc-data-table');
-for (const dataTable of dataTables) {
-    mdc.dataTable.MDCDataTable.attachTo(dataTable);
-}
-
-const chipSetEl = document.querySelector('#filterChipSet');
-var chipSet = null;
-if (chipSetEl) {
-    chipSet = mdc.chips.MDCChipSet.attachTo(chipSetEl);
-
-    chipSet.listen('MDCChip:removal', function (event) {
-        //console.log('MDCChip:removal');
-        onDeleteFilterIndex(event.detail.chipId);
-    });
-
-    /*
-    chipSet.listen('MDCChip:selection', function (event) {
-        console.log('MDCChip:selection');
-    });
-
-    chipSet.listen('MDCChip:interaction', function (event) {
-        console.log('MDCChip:interaction');
-    });
-    */
-}
-
-var uploadSelect = null;
-const uploadSelectEl = document.querySelector('#selectUploadType')
-if (uploadSelectEl) {
-    uploadSelect = mdc.select.MDCSelect.attachTo(uploadSelectEl);
-}
-
-const select = document.querySelector('#selectCount')
-const countSelect = mdc.select.MDCSelect.attachTo(select);
 countSelect.selectedIndex = selectedCountIndex;
 
 countSelect.listen('MDCSelect:change', () => {
@@ -110,22 +38,6 @@ countSelect.listen('MDCSelect:change', () => {
     form.offset.value = 0;
     form.submit();
 });
-
-const fileUpload = document.querySelector('#file-upload-dialog');
-
-const uploadDialog = mdc.dialog.MDCDialog.attachTo(fileUpload);
-
-const deleteFile = document.querySelector('#del-file-dialog');
-var confirmDeleteDialog = null;
-if (deleteFile) {
-    confirmDeleteDialog = mdc.dialog.MDCDialog.attachTo(deleteFile);
-    confirmDeleteDialog.listen('MDCDialog:closed', (e) => {
-
-        if (e.detail.action === 'delete') {
-            onConfirmedDeleteRelation();
-        }
-    });
-}
 
 /** MDC Web components initialization finished */
 
@@ -168,11 +80,6 @@ function onNextPage(form) {
     form.submit();
 }
 /** Конец управление постраничным выводом данных */
-
-/** Добавление файла данных по артефактам */
-function onAddFile() {
-    uploadDialog.open();
-}
 
 /**
  * Добавление файла данных по изменениям
@@ -267,7 +174,6 @@ function enableUploadDialog(state) {
 
     document.getElementById('fileName').disabled = !state;
     document.getElementById('formFile').disabled = !state;
-    //document.getElementById('closeButton').disabled = !state;
     document.getElementById('uploadButton').disabled = !state;
 
     if (uploadSelectEl) {
@@ -278,18 +184,6 @@ function enableUploadDialog(state) {
             uploadSelectEl.classList.add('mdc-select--disabled');
         }
     }
-
-    const typeSwitch = document.getElementById('replace');
-    if (typeSwitch) {
-        typeSwitch.disabled = !state;
-
-        if (state) {
-            typeSwitch.classList.remove('mdc-switch--disabled');
-        }
-        else {
-            typeSwitch.classList.add('mdc-switch--disabled');
-        }
-    }
 }
 
 /**
@@ -298,18 +192,11 @@ function enableUploadDialog(state) {
  */
 function onUpload(form) {
 
-    if (uploadSelect) {
-        form.fileType.value = uploadSelect.value;
-    }
-    else {
-        form.fileType.value = 1;
-    }
-
     var resultElement = form.elements.namedItem('result');
 
     const formData = new FormData(form);
 
-    resultElement.value = 'Идёт загрузка и обработка файла...';
+    resultElement.value = 'Uploading file...';
     resultElement.style.color = null;
 
     enableUploadDialog(false);
@@ -344,8 +231,7 @@ function onUpload(form) {
 }
 
 /** Свойства и методы для панели фильтра по коду или имени компонентов */
-const resultListContainerEl = document.getElementById('searchResultListContainer');
-const resultListEl = document.getElementById('searchResultList');
+const searchResultListContainerEl = document.getElementById('searchResultListContainer');
 
 function onSearchInputKeyDown(event) {
     switch (event.key) {
@@ -354,11 +240,11 @@ function onSearchInputKeyDown(event) {
             startSearch(event.target.value.trim());
             break;
         case 'Escape':
-            resultListContainerEl.style.display = 'none';
+            searchResultListContainerEl.style.display = 'none';
             break;
         case 'ArrowDown':
-            if (resultListContainerEl.style.display !== 'none') {
-                resultListEl.children[0].focus();
+            if (searchResultListContainerEl.style.display !== 'none') {
+                searchResultListEl.children[0].focus();
             }
             break;
     }
@@ -374,17 +260,16 @@ function startSearch(search) {
 </span></li>`;
 
     var addItem = (name) => {
-        resultListEl.innerHTML = itemsHtml('', { id: '', code: '', name });
+        searchResultListEl.innerHTML = itemsHtml('', { id: '', code: '', name });
     }
 
     if (search) {
         const formData = new FormData();
         formData.append('search', search);
 
-        chipSet.chips.forEach(c => formData.append('exclude', c.id));
-        //formData.append('exclude', chipSet.chips.map(c=>c.id));
+        filterChipSet.chips.forEach(c => formData.append('exclude', c.id));
 
-        fetch('/ComponentEvent/Components', {
+        fetch('/Home/Subjects', {
             method: 'POST',
             body: formData
         }).then(response => {
@@ -394,8 +279,8 @@ function startSearch(search) {
                         if (items.length < 1) {
                             addItem('Нет компонентов');
                         } else {
-                            resultListEl.innerHTML = items.reduce(itemsHtml, '');
-                            resultListEl.children[0].tabIndex = 0;
+                            searchResultListEl.innerHTML = items.reduce(itemsHtml, '');
+                            searchResultListEl.children[0].tabIndex = 0;
                         }
                     } else {
                         addItem('Нет компонентов');
@@ -417,11 +302,11 @@ function startSearch(search) {
                 addItem('Ошибка: ' + error);
             });
 
-        resultListContainerEl.style.display = 'block';
+        searchResultListContainerEl.style.display = 'block';
     } else {
-        resultListContainerEl.style.display = 'none';
+        searchResultListContainerEl.style.display = 'none';
         // Clear list
-        resultListEl.replaceChildren();
+        searchResultListEl.replaceChildren();
     }
 }
 
@@ -450,19 +335,19 @@ function onSearchComponent(e) {
 }
 
 function onDeleteFilterIndex(chipId) {
-    resultListContainerEl.style.display = 'none';
+    searchResultListContainerEl.style.display = 'none';
 
     const form = document.forms['mainForm'];
     form.offset.value = 0;
-    form.components.value = form.components.value.replace(chipId, '');
+    form.subjects.value = form.subjects.value.replace(chipId, '');
 
-    localStorage.setItem(filterComponents, form.components.value);
+    localStorage.setItem(filterSubjects, form.subjects.value);
 
     form.submit();
 }
 
 function onAddFilterIndex(item) {
-    resultListContainerEl.style.display = 'none';
+    searchResultListContainerEl.style.display = 'none';
 
     const itemId = item.getAttribute('data-id');
 
@@ -472,9 +357,9 @@ function onAddFilterIndex(item) {
 
     const form = document.forms['mainForm'];
     form.offset.value = 0;
-    form.components.value += (form.components.value.trim() ? ',' : '') + itemId;
+    form.subjects.value += (form.subjects.value.trim() ? ',' : '') + itemId;
 
-    localStorage.setItem(filterComponents, form.components.value);
+    localStorage.setItem(filterSubjects, form.subjects.value);
 
     form.submit();
 }
