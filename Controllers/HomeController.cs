@@ -12,6 +12,7 @@ using System.Web;
 
 namespace EventsStorage.Controllers
 {
+    [Route("[controller]/[action]")]
     public class HomeController : Controller
     {
         private readonly EventDbContext _ctx;
@@ -23,7 +24,6 @@ namespace EventsStorage.Controllers
              _ctx = ctx;
         }
 
-        [Route("{controller}")]
         public IActionResult Index([FromForm]int? offset, [FromForm]int? count, [FromForm] string subjects)
         {
             if (!offset.HasValue)
@@ -76,7 +76,7 @@ namespace EventsStorage.Controllers
             });
         }
 
-        [HttpPost("[controller]/[action]")]
+        [HttpPost]
         public IActionResult UploadFile(UploadEventFileViewModel model)
         {
             if (!ModelState.IsValid)
@@ -115,7 +115,7 @@ namespace EventsStorage.Controllers
             return Ok(file);
         }
 
-        [HttpGet("[controller]/[action]")]
+        [HttpGet]
         public IActionResult Download([Required]long id)
         {
             if (!ModelState.IsValid)
@@ -138,7 +138,7 @@ namespace EventsStorage.Controllers
             return File(file.Content, contentType, file.Name);
         }
 
-        [HttpPost("[controller]/[action]")]
+        [HttpPost]
         public IActionResult EventSubjects(string search, int[] exclude)
         {
             if (string.IsNullOrWhiteSpace(search))
@@ -177,8 +177,56 @@ namespace EventsStorage.Controllers
             return Ok(result.Select(s => new { s.Id, name = HttpUtility.HtmlEncode(s.Name) }));
         }
 
-        [HttpPost("[controller]/[action]")]
-        public IActionResult Delete([Required] long id)
+        [HttpPost]
+        public IActionResult AddEvent(AddEventViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var messages = string.Join("; ", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage));
+
+                return BadRequest(messages);
+            }
+
+            AppEvent e = new AppEvent{
+                SubjectId = model.SubjectId,
+                Description = model.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _ctx.Events.Add(e);
+            _ctx.SaveChanges();
+
+            return Ok(e);
+        }
+
+        [HttpGet]
+        public IActionResult DeleteEvent([Required] long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                var messages = string.Join("; ", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage));
+
+                return BadRequest(messages);
+            }
+
+            AppEvent e = _ctx.Events.SingleOrDefault(e => e.Id == id);
+            if (null == e)
+            {
+                return BadRequest("Event not found");
+            }
+
+            _ctx.Events.Remove(e);
+            _ctx.SaveChanges();
+
+            return Ok(e);
+        }
+
+        [HttpGet]
+        public IActionResult DeleteFile([Required] long id)
         {
             if (!ModelState.IsValid)
             {

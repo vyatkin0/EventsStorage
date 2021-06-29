@@ -68,3 +68,9 @@ input[type="file"] {
     cursor: default;
     pointer-events: none;
 }
+
+.bottom-line {
+    display: flex;
+    margin: 10px;
+    justify-content: flex-end;
+}

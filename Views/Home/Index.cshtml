@@ -5,7 +5,7 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model EventListViewModel
 
-@{ ViewData["Title"] = "Загрузка данных по изменениям компонентов МУСС"; }
+@{ ViewData["Title"] = "Events"; }
 
 @{
     int selectedCountIndex = Model.count switch
@@ -24,9 +24,10 @@
 
 <partial name="Filter.cshtml" />
 <partial name="UploadFile.cshtml" model=null />
+<partial name="AddEvent.cshtml" model=null />
 <partial name="Alert.cshtml" />
 
-<!-- Таблица изменений МУСС -->
+<!-- Events table -->
 <div class="mdc-data-table main-data-table" data-mdc-auto-init="MDCDataTable">
     <div class="mdc-data-table__table-container">
         <table class="mdc-data-table__table" aria-label="Events" width="100%">
@@ -35,6 +36,7 @@
                     <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col" width="150px">Id</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col" width="120px">Subject Id</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Subject Name</th>
+                    <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Description</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Created at</th>
                     <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Files</th>
 
@@ -47,6 +49,7 @@
                     <th class="mdc-data-table__cell mdc-data-table__header-cell--numeric" scope="row">@e.Id</th>
                     <th class="mdc-data-table__cell">@e.SubjectId</th>
                     <th class="mdc-data-table__cell">@e.Subject.Name</th>
+                    <th class="mdc-data-table__cell">@e.Description</th>
                     <td class="mdc-data-table__cell">@e.CreatedAt</td>
                     <td class="mdc-data-table__cell">
                         @foreach (var f in e.Files)
@@ -154,7 +157,13 @@
         </div>
     </form>
 </div>
-<!-- Таблица изменений МУСС -->
+<!-- Events table -->
+
+<div class="bottom-line">
+    <button id="add-event-button" class="mdc-button mdc-button--raised" onclick="onDialogAddEvent()" data-mdc-auto-init="MDCRipple">
+    <span class="mdc-button__label">Add Event</span>
+    </button>
+</div>
 
 <script>
     var selectedCountIndex = @selectedCountIndex;

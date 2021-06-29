@@ -3,7 +3,15 @@ using System.ComponentModel.DataAnnotations;
 using EventsStorage.Infrastructure;
 
 namespace EventsStorage.Models
-{   public class UploadEventFileViewModel
+{
+    public class AddEventViewModel
+    {
+        [Required]
+        public int SubjectId { get; set; }
+        [Required]
+        public string Description { get; set; }
+    }
+    public class UploadEventFileViewModel
     {
         [Required]
         public long eventId { get; set; }

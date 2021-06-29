@@ -98,6 +98,7 @@ namespace EventsStorage.Infrastructure
         public long Id { get; set; }
         public int SubjectId { get; set; }
         public EventSubject Subject { get; set; }
+        public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public ICollection<EventFile> Files { get; set; }
     }

@@ -3,6 +3,7 @@ Example of asp .net 5.0 mvc web application that uses Razor pages with Material 
 
 dotnet restore
 dotnet tool install --global dotnet-ef
+dotnet ef migrations add Initial
 dotnet ef database update
 dotnet build
 dotnet run

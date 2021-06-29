@@ -8,6 +8,8 @@ filterChipSet.listen('MDCChip:removal', function (event) {
     onDeleteFilterIndex(event.detail.chipId);
 });
 
+document.getElementById('add-event-dialog').MDCDialog.scrimClickAction = '';
+
 document.getElementById('del-file-dialog').MDCDialog.listen('MDCDialog:closed', (e) => {
 
     if (e.detail.action === 'delete') {
@@ -155,7 +157,7 @@ function onConfirmedDeleteRelation() {
  */
 function onChangeFile(ctrl) {
     document.getElementById('fileName').value = ctrl.files[0].name;
-    document.getElementById('uploadButton').disabled = !ctrl.files[0].name;
+    document.getElementById('upload-button').disabled = !ctrl.files[0].name;
 }
 
 /**
@@ -174,7 +176,7 @@ function enableUploadDialog(state) {
 
     document.getElementById('fileName').disabled = !state;
     document.getElementById('formFile').disabled = !state;
-    document.getElementById('uploadButton').disabled = !state;
+    document.getElementById('upload-button').disabled = !state;
 
     if (uploadSelectEl) {
         if (state) {
@@ -312,7 +314,7 @@ function startSearch(search) {
 
 var searchTimerId = null;
 
-function onSearchComponent(e) {
+function onSearchSubject(e) {
 
     clearTimeout(searchTimerId);
 
@@ -364,3 +366,7 @@ function onAddFilterIndex(item) {
     form.submit();
 }
 /** Конец свойства и методы для панели фильтра по коду или названию компонентов */
+
+function onDialogAddEvent() {
+    document.getElementById('add-event-dialog').MDCDialog.open();
+}
