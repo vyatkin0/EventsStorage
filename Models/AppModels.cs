@@ -15,7 +15,6 @@ namespace EventsStorage.Models
     {
         [Required]
         public long eventId { get; set; }
-        public int fileType { get; set; }
         [Required]
         public IFormFile formFile { get; set; }
     }

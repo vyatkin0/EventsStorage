@@ -7,7 +7,7 @@
 
 @model AddEventViewModel
 
-<form method="post" id="add-event" asp-controller="Home" asp-action="AddEvent">
+<form method="post" id="add-event-form" asp-controller="Home" asp-action="AddEvent">
     <input type="hidden" asp-for="SubjectId" />
     <!-- Add Event dialog -->
     <div class="mdc-dialog" id="add-event-dialog" data-mdc-auto-init="MDCDialog">
@@ -22,7 +22,8 @@
                     Add Event
                 </h2>
                 <div class="mdc-dialog__content" id="add-event-dialog-content">
-                    <label class="mdc-text-field mdc-text-field--outlined" id="event-subject" data-mdc-auto-init="MDCTextField">
+                    <div><!--To fix margin-top:0 for first child in mdc-dialog__content--></div>
+                    <label class="mdc-text-field mdc-text-field--outlined mtop10" id="event-subject" data-mdc-auto-init="MDCTextField">
                         <span class="mdc-notched-outline">
                             <span class="mdc-notched-outline__leading"></span>
                             <span class="mdc-notched-outline__notch">
@@ -34,18 +35,19 @@
                             aria-labelledby="event-subject-label"
                             aria-controls="event-subject-helper"
                             aria-describedby="event-subject-helper"
-                            oninput="onSearchSubject(event)"
-                            onkeydown="onSearchInputKeyDown(event)">
+                            oninput="onSearchEventSubject(event)"
+                            onkeydown="onSearchEventInputKeyDown(event)"
+                            data-mdc-dialog-initial-focus>
                     </label>
                     <!--Component menu-surface is not attached here, only css styles are applied-->
                     <div class="mdc-menu-surface mdc-menu-surface--open" id="event-subject-result-container">
                         <ul class="mdc-list mdc-list--two-line" id="event-subject-result-list" data-mdc-auto-init="MDCList"></ul>
                     </div>
                     <div class="mdc-text-field-helper-line">
-                        <div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="event-subject" aria-hidden="false">Start typing here Id or Name of a subject</div>
+                        <div class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" id="event-subject-helper" aria-hidden="false">Start typing here Id or Name of a subject</div>
                     </div>
 
-                    <label class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea"
+                    <label class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea mtop10"
                         id="event-description" data-mdc-auto-init="MDCTextField">
                     <span class="mdc-notched-outline">
                         <span class="mdc-notched-outline__leading"></span>
@@ -54,19 +56,24 @@
                         </span>
                         <span class="mdc-notched-outline__trailing"></span>
                     </span>
-                    <textarea asp-for="Description" class="mdc-text-field__input" rows="8" cols="40" aria-labelledby="event-description-label"></textarea>
+                    <textarea asp-for="Description" class="mdc-text-field__input" rows="6" cols="40" aria-labelledby="event-description-label"
+                    oninput="onInputEventDescription(event)" ></textarea>
                     </label>
 
-                    <div class="mdc-dialog__actions">
-                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-auto-init="MDCRipple">
-                            <div class="mdc-button__ripple"></div>
-                            <span class="mdc-button__label">Close</span>
-                        </button>
-                        <button type="button" id="upload-button" class="mdc-button mdc-dialog__button" disabled onclick="onAddEvent(this.form)" data-mdc-dialog-initial-focus data-mdc-dialog-button-default data-mdc-auto-init="MDCRipple">
-                            <div class="mdc-button__ripple"></div>
-                            <span class="mdc-button__label">Add</span>
-                        </button>
+                    <div class="mtop10">
+                        <output name="result"></output>
                     </div>
+                </div>
+
+                <div class="mdc-dialog__actions">
+                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-auto-init="MDCRipple">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Close</span>
+                    </button>
+                    <button type="button" id="add-event-button" class="mdc-button mdc-dialog__button" disabled onclick="onAddEvent(this.form)" data-mdc-auto-init="MDCRipple">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Add</span>
+                    </button>
                 </div>
             </div>
         </div>

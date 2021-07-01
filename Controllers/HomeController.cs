@@ -21,7 +21,7 @@ namespace EventsStorage.Controllers
         public HomeController(ILogger<HomeController> logger, EventDbContext ctx)
         {
             _logger = logger;
-             _ctx = ctx;
+            _ctx = ctx;
         }
 
         public IActionResult Index([FromForm]int? offset, [FromForm]int? count, [FromForm] string subjects)
@@ -139,7 +139,7 @@ namespace EventsStorage.Controllers
         }
 
         [HttpPost]
-        public IActionResult EventSubjects(string search, int[] exclude)
+        public IActionResult Subjects(string search, int[] exclude)
         {
             if (string.IsNullOrWhiteSpace(search))
             {
@@ -201,7 +201,7 @@ namespace EventsStorage.Controllers
             return Ok(e);
         }
 
-        [HttpGet]
+        [HttpPost]
         public IActionResult DeleteEvent([Required] long id)
         {
             if (!ModelState.IsValid)
@@ -225,7 +225,7 @@ namespace EventsStorage.Controllers
             return Ok(e);
         }
 
-        [HttpGet]
+        [HttpPost]
         public IActionResult DeleteFile([Required] long id)
         {
             if (!ModelState.IsValid)

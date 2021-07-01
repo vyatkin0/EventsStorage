@@ -1,36 +1,56 @@
 /** Initialize MDC Web components. */
 mdc.autoInit();
 
-document.getElementById('search-input-id').MDCTextField.focus();
+document.getElementById('search-input').MDCTextField.focus();
 
-const filterChipSet = document.getElementById('filterChipSet').MDCChipSet;
+const filterChipSet = document.getElementById('filter-chip-set').MDCChipSet;
 filterChipSet.listen('MDCChip:removal', function (event) {
     onDeleteFilterIndex(event.detail.chipId);
 });
 
 document.getElementById('add-event-dialog').MDCDialog.scrimClickAction = '';
 
-document.getElementById('del-file-dialog').MDCDialog.listen('MDCDialog:closed', (e) => {
+const confirmDeleteDialog = document.getElementById('del-file-dialog').MDCDialog;
+confirmDeleteDialog.listen('MDCDialog:closed', (e) => {
 
     if (e.detail.action === 'delete') {
-        onConfirmedDeleteRelation();
+        onConfirmedDeleteFile();
     }
 });
 
-const searchResultListEl = document.getElementById('searchResultList');
-var searchResultList = searchResultListEl.MDCList
+const searchResultListEl = document.getElementById('search-result-list');
+const searchResultListContainerEl = document.getElementById('search-result-list-container')
+const searchResultList = searchResultListEl.MDCList
 searchResultList.listen('MDCList:action', (e) => {
-    if (e.detail.index >= 0 && e.detail.index < searchResultList.listElements.length) {
-        onAddFilterIndex(searchResultList.listElements[e.detail.index]);
+    const elements = searchResultList.listElements;
+    if (e.detail.index >= 0 && e.detail.index < elements.length) {
+        searchResultListContainerEl.style.display = 'none';
+        onAddFilterIndex(elements[e.detail.index]);
     }
 });
 
-const countSelect = document.getElementById('selectCount').MDCSelect;
+const searchEventResultListEl = document.getElementById('event-subject-result-list');
+const searchEventResultListContainerEl = document.getElementById('event-subject-result-container');
+const searchEventResultList = searchEventResultListEl.MDCList
+searchEventResultList.listen('MDCList:action', (e) => {
+    const elements = searchEventResultList.listElements;
+    if (e.detail.index >= 0 && e.detail.index < elements.length) {
+        searchEventResultListContainerEl.style.display = 'none';
+        const form = document.forms['add-event-form'];
+        form.SubjectId.value = elements[e.detail.index].getAttribute('data-id');
+        document.getElementById('event-subject').MDCTextField.value = elements[e.detail.index].getAttribute('data-name') + ' ' + form.SubjectId.value;
+
+        // Enable Add button if description already specified
+        document.getElementById('add-event-button').disabled = form.Description.value.trim().length<1;
+    }
+});
+
+const countSelect = document.getElementById('count-select').MDCSelect;
 
 countSelect.selectedIndex = selectedCountIndex;
 
 countSelect.listen('MDCSelect:change', () => {
-    const form = document.forms['mainForm'];
+    const form = document.forms['events-form'];
 
     if (form.count.value === countSelect.value) return;
 
@@ -90,46 +110,46 @@ function onNextPage(form) {
 function onAddEventFile(eventId) {
     const form = document.forms[0];
     form.eventId.value = eventId;
-    uploadDialog.open();
+    document.getElementById('file-upload-dialog').MDCDialog.open();
 }
 
 /**
  * Удаление файла данных по изменениям
- * @param {any} relationId идентификатор связи событие-файл
+ * @param {any} fileId идентификатор связи событие-файл
  */
-function onDeleteRelation(relationId) {
-    confirmDeleteDialog.relationId = relationId;
+function onDeleteFile(fileId) {
+    confirmDeleteDialog.fileId = fileId;
     confirmDeleteDialog.open();
 }
 
 /** Оправка запроса на сервер на удаление файла данных по изменениям */
-function onConfirmedDeleteRelation() {
+function onConfirmedDeleteFile() {
 
-    const relationId = confirmDeleteDialog.relationId;
+    const fileId = confirmDeleteDialog.fileId;
 
-    confirmDeleteDialog.relationId = null;
+    confirmDeleteDialog.fileId = null;
 
-    if (!relationId) return;
+    if (!fileId) return;
 
     var displayError = (err) => {
-        const errId = 'err' + relationId;
+        const errId = 'err' + fileId;
         let e = document.getElementById(errId);
         if (!e) {
             e = document.createElement('div');
             relEl.appendChild(e);
         }
 
-        e.id = 'err' + relationId;
+        e.id = 'err' + fileId;
         e.innerHTML = err;
         e.style.color = 'red';
     }
 
-    const relEl = document.getElementById('relation' + relationId);
+    const relEl = document.getElementById('relation' + fileId);
 
     const formData = new FormData();
-    formData.append('id', relationId);
+    formData.append('id', fileId);
 
-    fetch('/ComponentEvent/Delete', {
+    fetch('/Home/DeleteFile', {
         method: 'POST',
         body: formData
     }).then(response => {
@@ -138,16 +158,16 @@ function onConfirmedDeleteRelation() {
         } else {
             response.text().then(text => {
                 if (text) {
-                    displayError('Ошибка: ' + text);
+                    displayError('Error: ' + text);
                 } else {
-                    displayError('Ошибка: ' + response.status + ' ' +
+                    displayError('Error: ' + response.status + ' ' +
                         response.statusText);
                 }
-            }).catch(() => displayError('Ошибка: ' + response.statusText));
+            }).catch(() => displayError('Error: ' + response.statusText));
         }
     })
     .catch((error) => {
-        displayError('Ошибка: ' + error);
+        displayError('Error: ' + error);
     });
 }
 
@@ -165,7 +185,7 @@ function onChangeFile(ctrl) {
  * @param {any} state если true, то элеенты управленя разрешены
  */
 function enableUploadDialog(state) {
-    const fileUploadEl = document.getElementById('fileUploadWrapper');
+    const fileUploadEl = document.getElementById('file-upload-wrapper');
     fileUploadEl.disabled = !state;
 
     if (state) {
@@ -177,15 +197,6 @@ function enableUploadDialog(state) {
     document.getElementById('fileName').disabled = !state;
     document.getElementById('formFile').disabled = !state;
     document.getElementById('upload-button').disabled = !state;
-
-    if (uploadSelectEl) {
-        if (state) {
-            uploadSelectEl.classList.remove('mdc-select--disabled');
-        }
-        else {
-            uploadSelectEl.classList.add('mdc-select--disabled');
-        }
-    }
 }
 
 /**
@@ -209,67 +220,92 @@ function onUpload(form) {
     }).then(response => {
         enableUploadDialog(true);
         if (response.ok) {
-            //uploadDialog.close('uploaded');
+            //document.getElementById('file-upload-dialog').MDCDialog..close('uploaded');
             //window.location.href = href;
-            const form = document.forms['mainForm'];
-            resultElement.value = 'Файл успешно загружен';
-            form.submit();
+            const eventsForm = document.forms['events-form'];
+            resultElement.value = 'File was uploaded successfully';
+            eventsForm.submit();
         } else {
             response.text().then(text => {
                 resultElement.style.color = 'red';
                 if (text) {
-                    resultElement.value = 'Ошибка: ' + text;
+                    resultElement.value = 'Error: ' + text;
                 } else {
-                    resultElement.value = 'Ошибка: ' + response.status + ' ' +
+                    resultElement.value = 'Error: ' + response.status + ' ' +
                         response.statusText;
                 }
             });
         }
     }).catch((error) => {
         enableUploadDialog(true);
-        resultElement.value = 'Ошибка: ' + error;
+        resultElement.value = 'Error: ' + error;
         resultElement.style.color = 'red'
     });
 }
 
 /** Свойства и методы для панели фильтра по коду или имени компонентов */
-const searchResultListContainerEl = document.getElementById('searchResultListContainer');
-
-function onSearchInputKeyDown(event) {
+function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, excludes) {
     switch (event.key) {
         case 'Enter':
         case 13:
-            startSearch(event.target.value.trim());
+            startSearch(event.target.value.trim(), resultListEl, resultListContainerEl, excludes);
             break;
         case 'Escape':
-            searchResultListContainerEl.style.display = 'none';
+            resultListContainerEl.style.display = 'none';
             break;
         case 'ArrowDown':
-            if (searchResultListContainerEl.style.display !== 'none') {
-                searchResultListEl.children[0].focus();
+            if (resultListContainerEl.style.display !== 'none') {
+                resultListEl.children[0].focus();
             }
             break;
     }
+
+    event.stopPropagation();
 }
 
-function startSearch(search) {
+function onSearchFilterInputKeyDown(event) {
+    return onSearchInputKeyDown(event, searchResultListEl, searchResultListContainerEl, filterChipSet.chips.map(c=>c.id))
+}
+
+function onSearchEventInputKeyDown(event) {
+    return onSearchInputKeyDown(event, searchEventResultListEl, searchEventResultListContainerEl, []);
+}
+
+function onSearchFilterSubject(event) {
+    onSearchSubject(event, searchResultListEl, searchResultListContainerEl, filterChipSet.chips.map(c=>c.id))
+}
+
+function onSearchEventSubject(event) {
+    onSearchSubject(event, searchEventResultListEl, searchEventResultListContainerEl, [])
+}
+
+function onInputEventDescription(event) {
+    const form = document.forms['add-event-form'];
+    if(form.SubjectId.value)
+    {
+        // Enable Add button if subject id already specified
+        document.getElementById('add-event-button').disabled = event.target.value.trim().length<1;
+    }
+}
+
+function startSearch(search, resultListEl, resultListContainerEl, excludes) {
     var itemsHtml = (result, item) => result
-        + `<li class='mdc-list-item' data-id='${item.id}' data-code='${item.code}' data-name='${item.name}' tabindex='-1'>
-<span class='mdc-list-item__ripple'></span>
-<span class='mdc-list-item__text'>
-<span class='mdc-list-item__primary-text'>${item.name}</span>
-<span class='mdc-list-item__secondary-text'>${item.code}</span>
+        + `<li class="mdc-list-item" data-id="${item.id}" data-name="${item.name}" tabindex="-1">
+<span class="mdc-list-item__ripple"></span>
+<span class="mdc-list-item__text">
+<span class="mdc-list-item__primary-text">${item.id}</span>
+<span class="mdc-list-item__secondary-text">${item.name}</span>
 </span></li>`;
 
     var addItem = (name) => {
-        searchResultListEl.innerHTML = itemsHtml('', { id: '', code: '', name });
+        resultListEl.innerHTML = itemsHtml('', { id: '', name });
     }
 
     if (search) {
         const formData = new FormData();
         formData.append('search', search);
 
-        filterChipSet.chips.forEach(c => formData.append('exclude', c.id));
+        excludes.forEach(id => formData.append('exclude', id));
 
         fetch('/Home/Subjects', {
             method: 'POST',
@@ -279,48 +315,47 @@ function startSearch(search) {
                 response.json().then(items => {
                     if (items) {
                         if (items.length < 1) {
-                            addItem('Нет компонентов');
+                            addItem('No subjects');
                         } else {
-                            searchResultListEl.innerHTML = items.reduce(itemsHtml, '');
-                            searchResultListEl.children[0].tabIndex = 0;
+                            resultListEl.innerHTML = items.reduce(itemsHtml, '');
+                            resultListEl.children[0].tabIndex = 0;
                         }
                     } else {
-                        addItem('Нет компонентов');
+                        addItem('No subjects');
                     }
-                }).catch((e) => addItem('Ошибка: ' + e));
+                }).catch((e) => addItem('Error: ' + e));
 
             } else {
                 response.text().then(text => {
                     if (text) {
-                        addItem('Ошибка: ' + text);
+                        addItem('Error: ' + text);
                     } else {
-                        addItem('Ошибка: ' + response.status + ' ' +
+                        addItem('Error: ' + response.status + ' ' +
                             response.statusText);
                     }
-                }).catch(() => addItem('Ошибка: ' + response.statusText));
+                }).catch(() => addItem('Error: ' + response.statusText));
             }
         })
             .catch((error) => {
-                addItem('Ошибка: ' + error);
+                addItem('Error: ' + error);
             });
 
-        searchResultListContainerEl.style.display = 'block';
+        resultListContainerEl.style.display = 'block';
     } else {
-        searchResultListContainerEl.style.display = 'none';
+        resultListContainerEl.style.display = 'none';
         // Clear list
-        searchResultListEl.replaceChildren();
+        resultListEl.replaceChildren();
     }
 }
 
 var searchTimerId = null;
-
-function onSearchSubject(e) {
+function onSearchSubject(e, resultListEl, resultListContainerEl, excludes) {
 
     clearTimeout(searchTimerId);
 
     let timeout = 500;
     const search = e.target.value.trim();
-    switch (search.lenght) {
+    switch (search.length) {
         case 0:
             return;
         case 1:
@@ -332,14 +367,14 @@ function onSearchSubject(e) {
     }
 
     searchTimerId = setTimeout(() => {
-        startSearch(search);
+        startSearch(search, resultListEl, resultListContainerEl, excludes);
     }, timeout);
 }
 
 function onDeleteFilterIndex(chipId) {
     searchResultListContainerEl.style.display = 'none';
 
-    const form = document.forms['mainForm'];
+    const form = document.forms['events-form'];
     form.offset.value = 0;
     form.subjects.value = form.subjects.value.replace(chipId, '');
 
@@ -349,15 +384,13 @@ function onDeleteFilterIndex(chipId) {
 }
 
 function onAddFilterIndex(item) {
-    searchResultListContainerEl.style.display = 'none';
-
     const itemId = item.getAttribute('data-id');
 
     if (!itemId) {
         return;
     }
 
-    const form = document.forms['mainForm'];
+    const form = document.forms['events-form'];
     form.offset.value = 0;
     form.subjects.value += (form.subjects.value.trim() ? ',' : '') + itemId;
 
@@ -369,4 +402,47 @@ function onAddFilterIndex(item) {
 
 function onDialogAddEvent() {
     document.getElementById('add-event-dialog').MDCDialog.open();
+}
+
+function enableAddEventDialog(state) {
+    document.getElementById('event-subject').disabled = !state;
+    document.getElementById('event-description').disabled = !state;
+    document.getElementById('add-event-button').disabled = !state;
+}
+
+function onAddEvent(form) {
+    var resultElement = form.elements.namedItem('result');
+
+    const formData = new FormData(form);
+
+    resultElement.value = 'Saving event...';
+    resultElement.style.color = null;
+
+    enableAddEventDialog(false);
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        enableAddEventDialog(true);
+        if (response.ok) {
+            const eventsForm = document.forms['events-form'];
+            resultElement.value = 'Event was added successfully';
+            eventsForm.submit();
+        } else {
+            response.text().then(text => {
+                resultElement.style.color = 'red';
+                if (text) {
+                    resultElement.value = 'Error: ' + text;
+                } else {
+                    resultElement.value = 'Error: ' + response.status + ' ' +
+                        response.statusText;
+                }
+            });
+        }
+    }).catch((error) => {
+        enableAddEventDialog(true);
+        resultElement.value = 'Error: ' + error;
+        resultElement.style.color = 'red'
+    });
 }

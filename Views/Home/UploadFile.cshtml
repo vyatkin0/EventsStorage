@@ -8,7 +8,7 @@
 @model UploadEventFileViewModel
 
 <form method="post" id="file-upload" enctype="multipart/form-data" asp-controller="Home" asp-action="UploadFile">
-    <input type="hidden" asp-for="fileType" />
+
     <input type="hidden" asp-for="eventId" />
     <!-- File upload dialog -->
     <div class="mdc-dialog" id="file-upload-dialog" data-mdc-auto-init="MDCDialog">
@@ -26,27 +26,26 @@
                     <div class="form-field-container">
                         <!--https://codepen.io/Josantonius/pen/BzNwXz-->
                         <input type="text" id="fileName" readonly placeholder="Maximum file size is 10MB">
-                        <div id="fileUploadWrapper" class="mdc-button">
+                        <div id="file-upload-wrapper" class="mdc-button">
                             <div class="mdc-button__ripple"></div>
                             <span>BROWSE</span>
-                            <input type="file" asp-for="formFile" class="upload" onchange="onChangeFile(this)" />
+                            <input type="file" asp-for="formFile" class="upload" onchange="onChangeFile(this)" titel="Select file" placeholder="Select file"/>
                         </div>
                     </div>
 
-                    <div style="margin-top:15px">
+                    <div class="mtop10">
                         <output name="result"></output>
                     </div>
-
-                    <div class="mdc-dialog__actions">
-                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-dialog-initial-focus data-mdc-dialog-button-default data-mdc-auto-init="MDCRipple">
-                            <div class="mdc-button__ripple"></div>
-                            <span class="mdc-button__label">Close</span>
-                        </button>
-                        <button type="button" id="upload-button" class="mdc-button mdc-dialog__button" disabled onclick="onUpload(this.form)" data-mdc-auto-init="MDCRipple">
-                            <div class="mdc-button__ripple"></div>
-                            <span class="mdc-button__label">Upload</span>
-                        </button>
-                    </div>
+                </div>
+                <div class="mdc-dialog__actions">
+                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-dialog-initial-focus data-mdc-dialog-button-default data-mdc-auto-init="MDCRipple">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Close</span>
+                    </button>
+                    <button type="button" id="upload-button" class="mdc-button mdc-dialog__button" disabled onclick="onUpload(this.form)" data-mdc-auto-init="MDCRipple">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Upload</span>
+                    </button>
                 </div>
             </div>
         </div>

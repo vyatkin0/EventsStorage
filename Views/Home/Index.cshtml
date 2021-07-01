@@ -1,8 +1,6 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@using EventsStorage.Models;
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model EventListViewModel
 
 @{ ViewData["Title"] = "Events"; }
@@ -15,7 +13,6 @@
         100 => 2,
         _ => -1
     };
-
 }
 
 <!--https://material.io/components-->
@@ -55,10 +52,10 @@
                         @foreach (var f in e.Files)
                         {
                         <div id="relation@(f.Id)" class="event-relation">
-                            <span class="material-icons clickable" onclick="onDeleteRelation(@f.Id)" title="Delete file">
+                            <span class="material-icons clickable" onclick="onDeleteFile(@f.Id)" title="Delete file">
                                 delete
                             </span>
-                            <a href="@Url.Action("Download", "ComponentEvent", new {id = f.Id } )" title="Download file">@f.Name</a>
+                            <a href="@Url.Action("Download", "Home", new {id = f.Id } )" title="Download file">@f.Name</a>
                         </div>
                         }
                         <span class="material-icons clickable" onclick="onAddEventFile(@e.Id)" title="Add file">
@@ -71,7 +68,7 @@
         </table>
     </div>
 
-    <form method="post" asp-antiforgery="true" id="mainForm">
+    <form method="post" asp-antiforgery="true" id="events-form">
         <input type="hidden" asp-for="offset" value="@Model.offset" />
         <input type="hidden" asp-for="count" value="@Model.count" />
         <input type="hidden" asp-for="subjects" value="@string.Join(",", Model.subjects.Select(s => s.Id).ToArray())" />
@@ -83,7 +80,7 @@
                         Строк на странице
                     </div>
 
-                    <div id="selectCount" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select"
+                    <div id="count-select" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select"
                     data-mdc-auto-init="MDCSelect">
                         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox"
                              aria-expanded="false"
@@ -112,8 +109,8 @@
                             </span>
                         </div>
 
-                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
-                            <ul class="mdc-list">
+                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                            <ul class="mdc-list" role="listbox" title="Page size">
                                 <li class="mdc-list-item" role="option" data-value="10">
                                     <span class="mdc-list-item__text">10</span>
                                 </li>
@@ -160,35 +157,35 @@
 <!-- Events table -->
 
 <div class="bottom-line">
-    <button id="add-event-button" class="mdc-button mdc-button--raised" onclick="onDialogAddEvent()" data-mdc-auto-init="MDCRipple">
+    <button id="add-event-dialog-button" class="mdc-button mdc-button--raised" onclick="onDialogAddEvent()" data-mdc-auto-init="MDCRipple">
     <span class="mdc-button__label">Add Event</span>
     </button>
 </div>
 
 <script>
     var selectedCountIndex = @selectedCountIndex;
-    var selectedCountName = 'componentEventPageCount';
-    var filterComponents = 'filterComponents';
+    var selectedCountName = 'eventPageCount';
+    var filterSubjects = 'filterSubjects';
     var mainListTotal = @Model.total;
 
     const selectedCount = localStorage.getItem(selectedCountName);
-    const selectedComponents = localStorage.getItem(filterComponents);
+    const selectedSubjects = localStorage.getItem(filterSubjects);
 
-    const modelComponents = [];
+    const modelSubjects = [];
     @foreach (var s in Model.subjects)
     {
-    @: modelComponents.push('@s.Id');
+    @: modelSubjects.push('@s.Id');
     }
 
-    const components = selectedComponents ?
-        selectedComponents.split(',').map(s => s.trim()).filter(s => s.length === 36 && !modelComponents.includes(s))
+    const subjects = selectedSubjects ?
+        selectedSubjects.split(',').map(s => s.trim()).filter(s => s.length === 36 && !modelSubjects.includes(s))
         : [];
 
-    if ((selectedCount && selectedCount != @Model.count) || components.length > 0) {
-        const form = document.forms['mainForm'];
+    if ((selectedCount && selectedCount != @Model.count) || subjects.length > 0) {
+        const form = document.forms['events-form'];
 
-        if (selectedComponents) {
-            form.components.value = selectedComponents;
+        if (selectedSubjects) {
+            form.subjects.value = selectedSubjects;
         }
 
         if (selectedCount) {

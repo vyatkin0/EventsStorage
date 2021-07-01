@@ -5,7 +5,7 @@
     align-items: center;
 }
 
-#fileUploadWrapper input.upload {
+#file-upload-wrapper input.upload {
     position: absolute;
     top: 0;
     right: 0;
@@ -73,4 +73,8 @@ input[type="file"] {
     display: flex;
     margin: 10px;
     justify-content: flex-end;
+}
+
+.mtop10 {
+    margin-top: 10px;
 }

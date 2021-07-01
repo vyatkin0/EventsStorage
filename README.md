@@ -11,4 +11,4 @@ dotnet run
 https://localhost:5001
 
 dotnet publish --configuration Release
-move file from /bin/Release/net5.0/publish to IIS folder.
+move files from /bin/Release/net5.0/publish to IIS folder.
