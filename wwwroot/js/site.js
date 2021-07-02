@@ -290,7 +290,7 @@ function onInputEventDescription(event) {
 
 function startSearch(search, resultListEl, resultListContainerEl, excludes) {
     var itemsHtml = (result, item) => result
-        + `<li class="mdc-list-item" data-id="${item.id}" data-name="${item.name}" tabindex="-1">
+        + `<li class="mdc-list-item" data-id="${item.id}" data-name="${item.name}" tabindex="-1" role="menuitem">
 <span class="mdc-list-item__ripple"></span>
 <span class="mdc-list-item__text">
 <span class="mdc-list-item__primary-text">${item.id}</span>
