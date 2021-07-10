@@ -202,30 +202,6 @@ namespace EventsStorage.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteEvent([Required] long id)
-        {
-            if (!ModelState.IsValid)
-            {
-                var messages = string.Join("; ", ModelState.Values
-                    .SelectMany(x => x.Errors)
-                    .Select(x => x.ErrorMessage));
-
-                return BadRequest(messages);
-            }
-
-            AppEvent e = _ctx.Events.SingleOrDefault(e => e.Id == id);
-            if (null == e)
-            {
-                return BadRequest("Event not found");
-            }
-
-            _ctx.Events.Remove(e);
-            _ctx.SaveChanges();
-
-            return Ok(e);
-        }
-
-        [HttpPost]
         public IActionResult DeleteFile([Required] long id)
         {
             if (!ModelState.IsValid)
@@ -247,6 +223,37 @@ namespace EventsStorage.Controllers
             _ctx.SaveChanges();
 
             return Ok(file);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteEvents([Required] long[] ids)
+        {
+            if (!ModelState.IsValid)
+            {
+                var messages = string.Join("; ", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage));
+
+                return BadRequest(messages);
+            }
+
+            if(ids.Length<1){
+                return Ok("Success");
+            }
+
+            long[] missedIds = ids.Where(i=>!_ctx.Events.Any(e=>e.Id==i)).ToArray();
+            if (missedIds.Length>0)
+            {
+                return BadRequest($"Event with id {string.Join(",", missedIds)} not found");
+            }
+
+            var events = _ctx.Events.Where(e => ids.Contains(e.Id));
+            var files = events.Select(e=>e.Files);
+            _ctx.Files.RemoveRange(files.SelectMany(f=>f));
+            _ctx.Events.RemoveRange(events);
+            _ctx.SaveChanges();
+
+            return Ok("Success");
         }
         public IActionResult Privacy()
         {

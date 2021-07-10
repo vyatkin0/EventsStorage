@@ -3,6 +3,25 @@ mdc.autoInit();
 
 document.getElementById('search-input').MDCTextField.focus();
 
+const mainDataTable = document.getElementById('main-data-table').MDCDataTable;
+mainDataTable.listen('MDCDataTable:rowSelectionChanged', function (event) {
+    const buttonEl = document.getElementById('delete-event-dialog-button');
+    if(event.selected) {
+        buttonEl.disabled = false;
+    } else {
+        const selected = mainDataTable.getSelectedRowIds();
+        buttonEl.disabled = selected.length<1;
+    }
+});
+
+mainDataTable.listen('MDCDataTable:selectedAll', function () {
+    document.getElementById('delete-event-dialog-button').disabled = mainDataTable.getRows()<1;
+});
+
+mainDataTable.listen('MDCDataTable:unselectedAll', function () {
+    document.getElementById('delete-event-dialog-button').disabled = true;
+});
+
 const filterChipSet = document.getElementById('filter-chip-set').MDCChipSet;
 filterChipSet.listen('MDCChip:removal', function (event) {
     onDeleteFilterIndex(event.detail.chipId);
@@ -15,6 +34,14 @@ confirmDeleteDialog.listen('MDCDialog:closed', (e) => {
 
     if (e.detail.action === 'delete') {
         onConfirmedDeleteFile();
+    }
+});
+
+const confirmDeleteEventDialog = document.getElementById('del-event-dialog').MDCDialog;
+confirmDeleteEventDialog.listen('MDCDialog:closed', (e) => {
+
+    if (e.detail.action === 'delete') {
+        onConfirmedDeleteEvent();
     }
 });
 
@@ -58,6 +85,8 @@ countSelect.listen('MDCSelect:change', () => {
 
     form.count.value = countSelect.value;
     form.offset.value = 0;
+
+    mainDataTable.showProgress();
     form.submit();
 });
 
@@ -66,6 +95,8 @@ countSelect.listen('MDCSelect:change', () => {
 /** Управление постраничным выводом данных */
 function onFirstPage(form) {
     form.offset.value = 0;
+
+    mainDataTable.showProgress();
     form.submit();
 }
 
@@ -80,6 +111,8 @@ function onLastPage(form) {
     if (total % form.count.value === 0) {
         form.offset.value -= form.count.value;
     }
+
+    mainDataTable.showProgress();
     form.submit();
 }
 
@@ -89,6 +122,8 @@ function onPrevPage(form) {
         return onFirstPage(form);
     }
     form.offset.value = offset;
+
+    mainDataTable.showProgress();
     form.submit();
 }
 
@@ -99,6 +134,8 @@ function onNextPage(form) {
         return onLastPage(form);
     }
     form.offset.value = offset;
+
+    mainDataTable.showProgress();
     form.submit();
 }
 /** Конец управление постраничным выводом данных */
@@ -224,6 +261,7 @@ function onUpload(form) {
             //window.location.href = href;
             const eventsForm = document.forms['events-form'];
             resultElement.value = 'File was uploaded successfully';
+            mainDataTable.showProgress();
             eventsForm.submit();
         } else {
             response.text().then(text => {
@@ -380,6 +418,7 @@ function onDeleteFilterIndex(chipId) {
 
     localStorage.setItem(filterSubjects, form.subjects.value);
 
+    mainDataTable.showProgress();
     form.submit();
 }
 
@@ -396,6 +435,7 @@ function onAddFilterIndex(item) {
 
     localStorage.setItem(filterSubjects, form.subjects.value);
 
+    mainDataTable.showProgress();
     form.submit();
 }
 /** Конец свойства и методы для панели фильтра по коду или названию компонентов */
@@ -428,7 +468,7 @@ function onAddEvent(form) {
         if (response.ok) {
             const eventsForm = document.forms['events-form'];
             resultElement.value = 'Event was added successfully';
-            eventsForm.submit();
+            onFirstPage(eventsForm);
         } else {
             response.text().then(text => {
                 resultElement.style.color = 'red';
@@ -444,5 +484,52 @@ function onAddEvent(form) {
         enableAddEventDialog(true);
         resultElement.value = 'Error: ' + error;
         resultElement.style.color = 'red'
+    });
+}
+
+function onDeleteSelectedEvents() {
+    confirmDeleteEventDialog.open();
+}
+
+function onConfirmedDeleteEvent() {
+    const events = mainDataTable.getSelectedRowIds();
+
+    if(events.length<1){
+        return;
+    }
+    
+    const eventsForm = document.forms['events-form'];
+    const resultElement = eventsForm.elements.namedItem('result');
+
+    const formData = new FormData();
+    events.forEach(id => {
+        formData.append('ids', id);
+    });
+
+    var displayError = (err) => {
+        resultElement.value = err;
+        resultElement.style.color = 'red';
+    }
+
+    fetch('/Home/DeleteEvents', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            resultElement.value = 'Events were deleted successfully';
+            onFirstPage(eventsForm);
+        } else {
+            response.text().then(text => {
+                if (text) {
+                    displayError('Error: ' + text);
+                } else {
+                    displayError('Error: ' + response.status + ' ' +
+                        response.statusText);
+                }
+            }).catch(() => displayError('Error: ' + response.statusText));
+        }
+    })
+    .catch((error) => {
+        displayError('Error: ' + error);
     });
 }
