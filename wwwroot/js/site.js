@@ -51,7 +51,8 @@ const searchResultList = searchResultListEl.MDCList
 searchResultList.listen('MDCList:action', (e) => {
     const elements = searchResultList.listElements;
     if (e.detail.index >= 0 && e.detail.index < elements.length) {
-        searchResultListContainerEl.style.display = 'none';
+        //searchResultListContainerEl.style.display = 'none';
+        searchResultListContainerEl.className = 'mdc-menu-surface';
         onAddFilterIndex(elements[e.detail.index]);
     }
 });
@@ -62,7 +63,8 @@ const searchEventResultList = searchEventResultListEl.MDCList
 searchEventResultList.listen('MDCList:action', (e) => {
     const elements = searchEventResultList.listElements;
     if (e.detail.index >= 0 && e.detail.index < elements.length) {
-        searchEventResultListContainerEl.style.display = 'none';
+        //searchEventResultListContainerEl.style.display = 'none';
+        searchEventResultListContainerEl.className = 'mdc-menu-surface';
         const form = document.forms['add-event-form'];
         form.SubjectId.value = elements[e.detail.index].getAttribute('data-id');
         document.getElementById('event-subject').MDCTextField.value = elements[e.detail.index].getAttribute('data-name') + ' ' + form.SubjectId.value;
@@ -92,7 +94,7 @@ countSelect.listen('MDCSelect:change', () => {
 
 /** MDC Web components initialization finished */
 
-/** Управление постраничным выводом данных */
+/** Pagination */
 function onFirstPage(form) {
     form.offset.value = 0;
 
@@ -138,11 +140,11 @@ function onNextPage(form) {
     mainDataTable.showProgress();
     form.submit();
 }
-/** Конец управление постраничным выводом данных */
+/** Pagination finished */
 
 /**
- * Добавление файла данных по изменениям
- * @param {any} eventId идентификатор события
+ * Add file to event
+ * @param {any} eventId event identifier
  */
 function onAddEventFile(eventId) {
     const form = document.forms[0];
@@ -151,8 +153,8 @@ function onAddEventFile(eventId) {
 }
 
 /**
- * Удаление файла данных по изменениям
- * @param {any} fileId идентификатор связи событие-файл
+ * Delete file from event
+ * @param {any} fileId file identifier
  */
 function onDeleteFile(fileId) {
     confirmDeleteDialog.fileId = fileId;
@@ -289,10 +291,12 @@ function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, exclud
             startSearch(event.target.value.trim(), resultListEl, resultListContainerEl, excludes);
             break;
         case 'Escape':
-            resultListContainerEl.style.display = 'none';
+            resultListContainerEl.className = 'mdc-menu-surface'
+            //resultListContainerEl.style.display = 'none';
             break;
         case 'ArrowDown':
-            if (resultListContainerEl.style.display !== 'none') {
+            //if (resultListContainerEl.style.display !== 'none') {
+            if (resultListContainerEl.className !== 'mdc-menu-surface') {
                 resultListEl.children[0].focus();
             }
             break;
@@ -378,9 +382,11 @@ function startSearch(search, resultListEl, resultListContainerEl, excludes) {
                 addItem('Error: ' + error);
             });
 
-        resultListContainerEl.style.display = 'block';
+        resultListContainerEl.className = 'mdc-menu-surface mdc-menu-surface--open'
+        //resultListContainerEl.style.display = 'block';
     } else {
-        resultListContainerEl.style.display = 'none';
+        //resultListContainerEl.style.display = 'none';
+        resultListContainerEl.className = 'mdc-menu-surface'
         // Clear list
         resultListEl.replaceChildren();
     }
@@ -410,7 +416,8 @@ function onSearchSubject(e, resultListEl, resultListContainerEl, excludes) {
 }
 
 function onDeleteFilterIndex(chipId) {
-    searchResultListContainerEl.style.display = 'none';
+    //searchResultListContainerEl.style.display = 'none';
+    searchResultListContainerEl.className = 'mdc-menu-surface';
 
     const form = document.forms['events-form'];
     form.offset.value = 0;
