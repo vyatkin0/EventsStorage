@@ -12,7 +12,6 @@ using System.Web;
 
 namespace EventsStorage.Controllers
 {
-    [Route("[controller]/[action]")]
     public class HomeController : Controller
     {
         private readonly EventDbContext _ctx;
@@ -116,7 +115,7 @@ namespace EventsStorage.Controllers
         }
 
         [HttpGet]
-        public IActionResult Download([Required]long id)
+        public IActionResult DownloadFile([Required]long id)
         {
             if (!ModelState.IsValid)
             {

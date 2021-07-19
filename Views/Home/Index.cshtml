@@ -81,11 +81,11 @@
                         <td class="mdc-data-table__cell">
                             @foreach (var f in e.Files)
                             {
-                            <div id="relation@(f.Id)" class="event-relation">
+                            <div id="file@(f.Id)" class="event-file">
                                 <span class="material-icons clickable" onclick="onDeleteFile(@f.Id)" title="Delete file">
                                     delete
                                 </span>
-                                <a href="@Url.Action("Download", "Home", new {id = f.Id } )" title="Download file">@f.Name</a>
+                                <a href="@Url.Action("DownloadFile", "Home", new {id = f.Id } )" title="Download file">@f.Name</a>
                             </div>
                             }
                             <span class="material-icons clickable" onclick="onAddEventFile(@e.Id)" title="Add file">
@@ -118,7 +118,7 @@
             <div class="mdc-data-table__pagination-trailing">
                 <div class="mdc-data-table__pagination-rows-per-page">
                     <div class="mdc-data-table__pagination-rows-per-page-label">
-                        Строк на странице
+                        Rows per page
                     </div>
 
                     <div id="count-select" class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select"
