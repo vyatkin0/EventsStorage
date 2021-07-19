@@ -1,4 +1,4 @@
-/** Initialize MDC Web components. */
+/** Initialize MDC Web components section */
 mdc.autoInit();
 
 document.getElementById('search-input').MDCTextField.focus();
@@ -24,7 +24,7 @@ mainDataTable.listen('MDCDataTable:unselectedAll', function () {
 
 const filterChipSet = document.getElementById('filter-chip-set').MDCChipSet;
 filterChipSet.listen('MDCChip:removal', function (event) {
-    onDeleteFilterIndex(event.detail.chipId);
+    onDeleteSubjectFromFilter(event.detail.chipId);
 });
 
 document.getElementById('add-event-dialog').MDCDialog.scrimClickAction = '';
@@ -55,7 +55,7 @@ searchResultList.listen('MDCList:action', (e) => {
     const elements = searchResultList.listElements;
     if (e.detail.index >= 0 && e.detail.index < elements.length) {
         searchResultListContainerEl.className = menuCloseClass;
-        onAddFilterIndex(elements[e.detail.index]);
+        onAddSubjectToFilter(elements[e.detail.index]);
     }
 });
 
@@ -93,9 +93,9 @@ countSelect.listen('MDCSelect:change', () => {
     form.submit();
 });
 
-/** MDC Web components initialization finished */
+/** End of  MDC Web components initialization section */
 
-/** Pagination */
+/** Pagination section */
 function onFirstPage(form) {
     form.offset.value = 0;
 
@@ -141,7 +141,7 @@ function onNextPage(form) {
     mainDataTable.showProgress();
     form.submit();
 }
-/** Pagination finished */
+/** End of pagination section */
 
 /**
  * Add file to event
@@ -184,7 +184,7 @@ function onConfirmedDeleteFile() {
         e.style.color = 'red';
     }
 
-    const relEl = document.getElementById('relation' + fileId);
+    const relEl = document.getElementById('file' + fileId);
 
     const formData = new FormData();
     formData.append('id', fileId);
@@ -284,7 +284,15 @@ function onUpload(form) {
     });
 }
 
-/** Свойства и методы для панели фильтра по коду или имени компонентов */
+/** Filter events by subject identifier section */
+
+/**
+ * Key down event handler for the subject selector control  
+ * @param {*} event event object
+ * @param {*} resultListEl Html element for list of returned subjects 
+ * @param {*} resultListContainerEl Html element to hold a whole search result
+ * @param {*} excludes array id identifiers that have to be excluded from search result (already selected items)
+ */
 function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, excludes) {
     switch (event.key) {
         case 'Enter':
@@ -307,22 +315,30 @@ function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, exclud
     }
 }
 
+/** Wrapper */
 function onSearchFilterInputKeyDown(event) {
     return onSearchInputKeyDown(event, searchResultListEl, searchResultListContainerEl, filterChipSet.chips.map(c=>c.id))
 }
 
+/** Wrapper */
 function onSearchEventInputKeyDown(event) {
     return onSearchInputKeyDown(event, searchEventResultListEl, searchEventResultListContainerEl, []);
 }
 
+/** Wrapper */
 function onSearchFilterSubject(event) {
     onSearchSubject(event, searchResultListEl, searchResultListContainerEl, filterChipSet.chips.map(c=>c.id), false)
 }
 
+/** Wrapper */
 function onSearchEventSubject(event) {
     onSearchSubject(event, searchEventResultListEl, searchEventResultListContainerEl, [], false)
 }
 
+/**
+ * Input event handler for Event Description text area
+ * @param {*} event event object
+ */
 function onInputEventDescription(event) {
     const form = document.forms['add-event-form'];
     if(form.SubjectId.value)
@@ -332,13 +348,23 @@ function onInputEventDescription(event) {
     }
 }
 
-var searchTimerId = null;
-function onSearchSubject(e, resultListEl, resultListContainerEl, excludes, now) {
+var searchTimerId = null; // Start search subject timer id 
+
+/**
+ * Start delayed search subject
+ * @param {*} event event object
+ * @param {*} resultListEl Html element for list of returned subjects 
+ * @param {*} resultListContainerEl Html element to hold a whole search result
+ * @param {*} excludes array id identifiers that have to be excluded from search result (already selected items)
+ * @param {*} now if true then start search immediately
+ * @returns 
+ */
+function onSearchSubject(event, resultListEl, resultListContainerEl, excludes, now) {
 
     clearTimeout(searchTimerId);
 
     let timeout = 0;
-    const search = e.target.value.trim();
+    const search = event.target.value.trim();
     
     if(!now) {
         switch (search.length) {
@@ -361,6 +387,14 @@ function onSearchSubject(e, resultListEl, resultListContainerEl, excludes, now) 
     }, timeout);
 }
 
+/**
+ * Send search subject request to backend
+ * @param {*} resultListEl Html element for list of returned subjects 
+ * @param {*} resultListContainerEl Html element to hold a whole search result
+ * @param {*} excludes array id identifiers that have to be excluded from search result (already selected items)
+ * @param {*} now if true then start search immediately
+ * @returns 
+ */
 function startSearch(search, resultListEl, resultListContainerEl, excludes) {
     var itemsHtml = (result, item) => result
         + `<li class="mdc-list-item" data-id="${item.id}" data-name="${item.name}" tabindex="-1" role="menuitem">
@@ -421,7 +455,11 @@ function startSearch(search, resultListEl, resultListContainerEl, excludes) {
     }
 }
 
-function onDeleteFilterIndex(chipId) {
+/**
+ * Filter events by subject id ChipSet chip removal event handler
+ * @param {*} chipId chip identifier (same as subject id)
+ */
+function onDeleteSubjectFromFilter(chipId) {
     searchResultListContainerEl.className = menuCloseClass;
 
     const form = document.forms['events-form'];
@@ -434,7 +472,11 @@ function onDeleteFilterIndex(chipId) {
     form.submit();
 }
 
-function onAddFilterIndex(item) {
+/**
+ * Filter events by subject id ChipSet add subject to filter event handler
+ * @param {*} item selected subject list item (HtmElement)
+ */
+function onAddSubjectToFilter(item) {
     const itemId = item.getAttribute('data-id');
 
     if (!itemId) {
@@ -450,18 +492,29 @@ function onAddFilterIndex(item) {
     mainDataTable.showProgress();
     form.submit();
 }
-/** Конец свойства и методы для панели фильтра по коду или названию компонентов */
+/** End of filter events by subject identifier section */
 
+/**
+ * Display the Add Event dialog
+ */
 function onDialogAddEvent() {
     document.getElementById('add-event-dialog').MDCDialog.open();
 }
 
+/**
+ * Update controls state of the Add Event dialog
+ * @param {any} state true, to enable dialog controls, disable otherwise
+ */
 function enableAddEventDialog(state) {
     document.getElementById('event-subject').disabled = !state;
     document.getElementById('event-description').disabled = !state;
     document.getElementById('add-event-button').disabled = !state;
 }
 
+/**
+ * Send add event request to backend
+ * @param {*} form event form data 
+ */
 function onAddEvent(form) {
     var resultElement = form.elements.namedItem('result');
 
@@ -499,10 +552,16 @@ function onAddEvent(form) {
     });
 }
 
+/**
+ * Delete selected events
+ */
 function onDeleteSelectedEvents() {
     confirmDeleteEventDialog.open();
 }
 
+/**
+ * Send delete events request to backend
+ */
 function onConfirmedDeleteEvent() {
     const events = mainDataTable.getSelectedRowIds();
 
