@@ -296,7 +296,6 @@ function onUpload(form) {
 function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, excludes) {
     switch (event.key) {
         case 'Enter':
-        case 13:
             onSearchSubject(event, resultListEl, resultListContainerEl, excludes, true);
             event.stopPropagation();
             break;
