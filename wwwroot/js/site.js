@@ -295,20 +295,20 @@ function onUpload(form) {
  */
 function onSearchInputKeyDown(event, resultListEl, resultListContainerEl, excludes) {
     switch (event.key) {
+        case 'ArrowDown':
+            if (resultListContainerEl.className !== menuCloseClass) {
+                resultListEl.children[0].focus();
+                event.stopPropagation();
+                break;
+            }
+            /* falls through */
         case 'Enter':
-        case 13:
             onSearchSubject(event, resultListEl, resultListContainerEl, excludes, true);
             event.stopPropagation();
             break;
         case 'Escape':
             if (resultListContainerEl.className !== menuCloseClass) {
                 resultListContainerEl.className = menuCloseClass;
-                event.stopPropagation();
-            }
-            break;
-        case 'ArrowDown':
-            if (resultListContainerEl.className !== menuCloseClass) {
-                resultListEl.children[0].focus();
                 event.stopPropagation();
             }
             break;

@@ -68,15 +68,14 @@
                 </div>
 
                 <div class="mdc-dialog__actions">
-                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-auto-init="MDCRipple">
-                        <div class="mdc-button__ripple"></div>
-                        <span class="mdc-button__label">Close</span>
-                    </button>
                     <button type="button" id="add-event-button" class="mdc-button mdc-dialog__button" disabled onclick="onAddEvent(this.form)" data-mdc-auto-init="MDCRipple">
                         <div class="mdc-button__ripple"></div>
                         <span class="mdc-button__label">Add</span>
                     </button>
-
+                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close" data-mdc-auto-init="MDCRipple">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Close</span>
+                    </button>
                     <!-- Prevent implicit submission of the form -->
                     <button type="submit" disabled style="display: none" aria-hidden="true"></button>
                 </div>
