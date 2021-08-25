@@ -368,8 +368,9 @@ function onSearchSubject(event, resultListEl, resultListContainerEl, excludes, n
     
     if(!now) {
         switch (search.length) {
-            case 0:
-                return;
+            //If search is empty startSearch closes menu
+            //case 0:
+            //    return;
             case 1:
                 timeout = 2000;
                 break;
