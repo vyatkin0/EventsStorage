@@ -1,7 +1,7 @@
 # EventsStorage
 Example of asp .net 5.0 mvc web application that uses Razor pages with Material Design web components.
 
-It is available for playing by url https://eventsstorage-fcn7f4ebeq-uc.a.run.app/
+It is available for playing by url https://events-storage-fcn7f4ebeq-uc.a.run.app/
 
 These are generic installation instructions.
 
