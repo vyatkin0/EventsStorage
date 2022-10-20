@@ -54,7 +54,8 @@ namespace EventsStorage.Infrastructure
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("EventStorage")); 
+                //optionsBuilder.UseSqlServer(_configuration.GetConnectionString("EventStorage"));
+                optionsBuilder.UseSqlite(_configuration.GetConnectionString("EventStorage")); 
                 optionsBuilder.UseLoggerFactory(_loggerFactory);
                 optionsBuilder.EnableSensitiveDataLogging(true);
             }
